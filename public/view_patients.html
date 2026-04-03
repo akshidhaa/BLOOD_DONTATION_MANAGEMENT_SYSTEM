@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Patients</title>
+
+<style>
+body{text-align:center;background:#ffe6f0;font-family:Arial;}
+table{margin:auto;width:80%;border-collapse:collapse;}
+th,td{border:1px solid pink;padding:10px;}
+button{padding:5px;background:red;color:white;border:none;border-radius:5px;}
+</style>
+
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+const supabase = createClient(
+"https://lrckdxszwwwpulwekaed.supabase.co",
+"sb_publishable_Rf-9M9rRHIcCpOxhF1TXQg_1CybT6hX"
+);
+
+async function load(){
+  const {data,error} = await supabase.from('patient').select('*');
+
+  if(error){
+    alert(error.message);
+    return;
+  }
+
+  const table = document.getElementById("data");
+  table.innerHTML="";
+
+  data.forEach(p=>{
+    table.innerHTML += `
+    <tr>
+      <td>${p.name}</td>
+      <td>${p.contact_no}</td>
+      <td>${p.blood_group}</td>
+      <td><button onclick="del('${p.id}')">Delete</button></td>
+    </tr>`;
+  });
+}
+
+window.del = async function(id){
+  await supabase.from('patient').delete().eq('id',id);
+  load();
+}
+
+window.onload = load;
+</script>
+
+</head>
+
+<body>
+<h2>Patients List</h2>
+
+<table>
+<tr><th>Name</th><th>Contact</th><th>Blood</th><th>Action</th></tr>
+<tbody id="data"></tbody>
+</table>
+
+</body>
+</html>

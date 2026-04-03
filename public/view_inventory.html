@@ -1,0 +1,78 @@
+<?php
+$servername = "localhost";
+$username = "root";
+$password = ""; 
+$dbname = "bloodbank";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+$sql = "SELECT * FROM inventory ORDER BY id DESC";
+$result = $conn->query($sql);
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>View Blood Inventory</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid black; padding: 8px; text-align: center; }
+        th { background-color: #f2f2f2; }
+        .low-stock { background-color: #ffcccc; }
+    </style>
+</head>
+<body>
+    <h2>Blood Inventory</h2>
+    <a href="inventory.html">Add More Blood</a>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Blood Group</th>
+            <th>Quantity</th>
+            <th>Received Date</th>
+            <th>Expiry Date</th>
+            <th>Contact</th>
+            <th>Name</th>
+            <th>Age</th>
+            <th>Location</th>
+            <th>Status</th>
+        </tr>
+
+        <?php
+        if ($result->num_rows > 0) {
+            $today = date('Y-m-d');
+            while($row = $result->fetch_assoc()) {
+                $status = "Available";
+                $rowClass = "";
+                if($row['expiry_date'] < $today){
+                    $status = "Expired";
+                    $rowClass = "low-stock";
+                } elseif($row['quantity'] < 5){
+                    $status = "Low Stock";
+                    $rowClass = "low-stock";
+                }
+
+                echo "<tr class='$rowClass'>
+                        <td>".$row['id']."</td>
+                        <td>".$row['blood_group']."</td>
+                        <td>".$row['quantity']."</td>
+                        <td>".$row['received_date']."</td>
+                        <td>".$row['expiry_date']."</td>
+                        <td>".$row['contact']."</td>
+                        <td>".$row['name']."</td>
+                        <td>".$row['age']."</td>
+                        <td>".$row['location']."</td>
+                        <td>".$status."</td>
+                      </tr>";
+            }
+        } else {
+            echo "<tr><td colspan='10'>No records found</td></tr>";
+        }
+        $conn->close();
+        ?>
+    </table>
+</body>
+</html>

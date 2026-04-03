@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Employee List</title>
+
+  <style>
+    body {
+      text-align: center;
+      background: #e6f7ff;
+      font-family: Arial;
+    }
+
+    table {
+      margin: auto;
+      width: 80%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      border: 1px solid #66ccff;
+      padding: 10px;
+    }
+
+    th {
+      background: #66ccff;
+    }
+
+    button {
+      padding: 6px 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .deleteBtn {
+      background: red;
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>Employee List</h2>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Designation</th>
+    <th>Contact</th>
+    <th>Action</th>
+  </tr>
+  <tbody id="tableData"></tbody>
+</table>
+
+<br>
+<button onclick="location.href='employee.html'">⬅ Back</button>
+
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+// ✅ SUPABASE CONNECT
+const supabase = createClient(
+  "https://lrckdxszwwwpulwekaed.supabase.co",
+  "sb_publishable_Rf-9M9rRHIcCpOxhF1TXQg_1CybT6hX"
+);
+
+// ✅ LOAD EMPLOYEES
+async function loadEmployees() {
+  const { data, error } = await supabase
+    .from("employee")
+    .select("*");
+
+  if (error) {
+    alert("❌ " + error.message);
+    return;
+  }
+
+  const table = document.getElementById("tableData");
+
+  table.innerHTML = data.map(e => `
+    <tr>
+      <td>${e.name}</td>
+      <td>${e.designation}</td>
+      <td>${e.contact_no}</td>
+      <td>
+        <button class="deleteBtn" onclick="deleteEmployee('${e.id}')">
+          Delete
+        </button>
+      </td>
+    </tr>
+  `).join("");
+}
+
+// ✅ DELETE FUNCTION
+window.deleteEmployee = async function(id) {
+  const { error } = await supabase
+    .from("employee")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    alert("❌ " + error.message);
+    return;
+  }
+
+  alert("🗑️ Employee deleted!");
+  loadEmployees(); // refresh
+};
+
+// ✅ LOAD ON PAGE OPEN
+window.addEventListener("DOMContentLoaded", loadEmployees);
+</script>
+
+</body>
+</html>

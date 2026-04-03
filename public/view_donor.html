@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>View Donors</title>
+
+  <style>
+    body {
+      text-align: center;
+      background: #ffe6f0;
+      font-family: Arial;
+    }
+
+    table {
+      margin: auto;
+      width: 80%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      border: 1px solid pink;
+      padding: 10px;
+    }
+
+    th {
+      background: pink;
+    }
+
+    button {
+      padding: 6px 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .deleteBtn {
+      background: red;
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>Donor List</h2>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Contact</th>
+    <th>Blood Group</th>
+    <th>Action</th>
+  </tr>
+  <tbody id="tableData"></tbody>
+</table>
+
+<br>
+<button onclick="location.href='donor.html'">⬅ Back</button>
+
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+// ✅ CONNECT SUPABASE
+const supabase = createClient(
+  "https://lrckdxszwwwpulwekaed.supabase.co",
+  "sb_publishable_Rf-9M9rRHIcCpOxhF1TXQg_1CybT6hX"
+);
+
+// ✅ LOAD DATA
+async function loadDonors() {
+  const { data, error } = await supabase.from("donor").select("*");
+
+  if (error) {
+    alert("❌ " + error.message);
+    return;
+  }
+
+  const table = document.getElementById("tableData");
+
+  table.innerHTML = data.map(d => `
+    <tr>
+      <td>${d.name}</td>
+      <td>${d.contact_no}</td>
+      <td>${d.blood_group}</td>
+      <td>
+        <button class="deleteBtn" onclick="deleteDonor('${d.id}')">Delete</button>
+      </td>
+    </tr>
+  `).join("");
+}
+
+// ✅ DELETE FUNCTION
+window.deleteDonor = async function(id) {
+  const { error } = await supabase
+    .from("donor")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    alert("❌ " + error.message);
+    return;
+  }
+
+  alert("🗑️ Record deleted!");
+  loadDonors(); // reload table
+};
+
+// ✅ FIX: LOAD AFTER PAGE READY
+window.addEventListener("DOMContentLoaded", loadDonors);
+</script>
+
+</body>
+</html>

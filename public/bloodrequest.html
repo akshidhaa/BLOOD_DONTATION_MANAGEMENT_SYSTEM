@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Blood Request</title>
+
+  <style>
+    body {
+      text-align: center;
+      font-family: Arial;
+      background: #ffe6e6;
+    }
+
+    input {
+      padding: 8px;
+      margin: 10px;
+    }
+
+    button {
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    table {
+      margin: auto;
+      margin-top: 20px;
+      border-collapse: collapse;
+      width: 60%;
+      background: white;
+    }
+
+    th, td {
+      border: 1px solid #ff9999;
+      padding: 10px;
+    }
+
+    th {
+      background: #ff4d4d;
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>🩸 Blood Request</h2>
+
+<input id="blood" placeholder="Enter Blood Group (A+, O-, etc)">
+<br>
+<button onclick="searchDonors()">Search</button>
+
+<h3>Available Donors</h3>
+
+<table>
+<tr>
+  <th>Name</th>
+  <th>Contact</th>
+  <th>Blood Group</th>
+</tr>
+<tbody id="result"></tbody>
+</table>
+
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+// ✅ CONNECT
+const supabase = createClient(
+  "https://lrckdxszwwwpulwekaed.supabase.co",
+  "sb_publishable_Rf-9M9rRHIcCpOxhF1TXQg_1CybT6hX"
+);
+
+// 🔍 SEARCH DONORS
+window.searchDonors = async function() {
+
+  const blood = document.getElementById("blood").value;
+
+  if (!blood) {
+    alert("⚠️ Please enter blood group");
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from("donor")
+    .select("*")
+    .ilike("blood_group", blood);
+
+  if (error) {
+    alert("❌ " + error.message);
+    return;
+  }
+
+  // ❌ No donors
+  if (!data || data.length === 0) {
+    document.getElementById("result").innerHTML =
+      "<tr><td colspan='3'>❌ No donors found</td></tr>";
+    return;
+  }
+
+  // ✅ Show donors
+  document.getElementById("result").innerHTML = data.map(d => `
+    <tr>
+      <td>${d.name}</td>
+      <td>${d.contact_no}</td>
+      <td>${d.blood_group}</td>
+    </tr>
+  `).join("");
+};
+</script>
+
+</body>
+</html>

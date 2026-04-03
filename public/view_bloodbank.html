@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Blood Bank List</title>
+</head>
+
+<body style="text-align:center; background:#fff0e6;">
+
+<h2>Blood Bank List</h2>
+
+<table border="1" align="center">
+<tr>
+  <th>Bank Name</th>
+  <th>Location</th>
+  <th>Action</th>
+</tr>
+<tbody id="data"></tbody>
+</table>
+
+<br>
+<button onclick="location.href='bloodbank.html'">Back</button>
+
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+const supabase = createClient(
+  "https://lrckdxszwwwpulwekaed.supabase.co",
+  "sb_publishable_Rf-9M9rRHIcCpOxhF1TXQg_1CybT6hX"
+);
+
+async function load(){
+  const { data, error } = await supabase
+    .from("blood_bank")   // ✅ FIXED TABLE NAME
+    .select("*");
+
+  if(error){
+    alert(error.message);
+    return;
+  }
+
+  document.getElementById("data").innerHTML = data.map(b => `
+    <tr>
+      <td>${b.bank_name}</td>
+      <td>${b.location}</td>
+      <td>
+        <button onclick="del('${b.id}')">Delete</button>
+      </td>
+    </tr>
+  `).join("");
+}
+
+window.del = async function(id){
+  await supabase.from("blood_bank").delete().eq("id", id);
+  load();
+}
+
+window.onload = load;
+</script>
+
+</body>
+</html>

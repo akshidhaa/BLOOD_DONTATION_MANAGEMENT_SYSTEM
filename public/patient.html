@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Patient</title>
+
+<style>
+body {background:#ffe6f0;display:flex;justify-content:center;align-items:center;height:100vh;font-family:Arial;}
+.box {background:white;padding:30px;border-radius:10px;text-align:center;}
+input {width:250px;padding:10px;margin:10px;}
+button {padding:10px;margin:5px;background:pink;border:none;border-radius:5px;}
+</style>
+
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+const supabase = createClient(
+"https://lrckdxszwwwpulwekaed.supabase.co",
+"sb_publishable_Rf-9M9rRHIcCpOxhF1TXQg_1CybT6hX"
+);
+
+window.addPatient = async function(){
+  const name = nameInput.value;
+  const contact = contactInput.value;
+  const blood = bloodInput.value;
+
+  if(!name || !contact || !blood){
+    alert("Fill all fields");
+    return;
+  }
+
+  const {error} = await supabase.from('patient')
+  .insert([{name, contact_no:contact, blood_group:blood}]);
+
+  if(error) alert(error.message);
+  else alert("Patient Added!");
+}
+</script>
+</head>
+
+<body>
+
+<div class="box">
+<h2>Add Patient</h2>
+
+<input id="nameInput" placeholder="Name"><br>
+<input id="contactInput" placeholder="Contact"><br>
+<input id="bloodInput" placeholder="Blood Group"><br>
+
+<button onclick="addPatient()">Submit</button><br>
+
+<button onclick="location.href='view_patients.html'">
+  View Patients
+</button>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Blood Bank Form</title>
+</head>
+
+<body style="text-align:center; background:#fff0e6; font-family:Arial;">
+
+<h2>Blood Bank Form</h2>
+
+<input id="bank_name" placeholder="Bank Name"><br><br>
+<input id="location" placeholder="Location"><br><br>
+
+<button id="submitBtn">Submit</button>
+<button onclick="location.href='view_bloodbank.html'">View Blood Banks</button>
+
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+const supabase = createClient(
+  "https://lrckdxszwwwpulwekaed.supabase.co",
+  "sb_publishable_Rf-9M9rRHIcCpOxhF1TXQg_1CybT6hX"
+);
+
+window.addEventListener("DOMContentLoaded", () => {
+
+  document.getElementById("submitBtn").addEventListener("click", async () => {
+
+    const bank_name = document.getElementById("bank_name").value;
+    const location = document.getElementById("location").value;
+
+    if (!bank_name || !location) {
+      alert("⚠️ Fill all fields");
+      return;
+    }
+
+    const { error } = await supabase
+      .from("blood_bank")   // ✅ FIXED TABLE NAME
+      .insert([{ bank_name, location }]);
+
+    if (error) {
+      alert("❌ " + error.message);
+      console.error(error);
+      return;
+    }
+
+    alert("🩸 Blood Bank added!");
+
+    document.getElementById("bank_name").value = "";
+    document.getElementById("location").value = "";
+  });
+
+});
+</script>
+
+</body>
+</html>

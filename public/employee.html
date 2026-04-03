@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Employee Form</title>
+</head>
+
+<body style="text-align:center; background:#e6f7ff; font-family:Arial;">
+
+<h2>Employee Form</h2>
+
+<input id="name" placeholder="Name"><br><br>
+<input id="designation" placeholder="Designation"><br><br>
+<input id="contact_no" placeholder="Contact"><br><br>
+
+<button id="submitBtn">Submit</button>
+<button onclick="location.href='view_employee.html'">View Employees</button>
+
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+const supabase = createClient(
+  "https://lrckdxszwwwpulwekaed.supabase.co",
+  "sb_publishable_Rf-9M9rRHIcCpOxhF1TXQg_1CybT6hX"
+);
+
+window.addEventListener("DOMContentLoaded", () => {
+
+  document.getElementById("submitBtn").addEventListener("click", async () => {
+
+    const name = document.getElementById("name").value;
+    const designation = document.getElementById("designation").value;
+    const contact_no = document.getElementById("contact_no").value;
+
+    if (!name || !designation || !contact_no) {
+      alert("⚠️ Fill all fields");
+      return;
+    }
+
+    const { error } = await supabase
+      .from("employee")
+      .insert([{ name, designation, contact_no }]); // ✅ FIXED
+
+    if (error) {
+      alert("❌ " + error.message);
+      console.log(error);
+      return;
+    }
+
+    alert("✅ Employee added successfully!");
+
+    document.getElementById("name").value = "";
+    document.getElementById("designation").value = "";
+    document.getElementById("contact_no").value = "";
+  });
+
+});
+</script>
+
+</body>
+</html>

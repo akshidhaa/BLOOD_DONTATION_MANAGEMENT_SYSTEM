@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #f4f4f4;
+      text-align: center;
+    }
+
+    h1 {
+      background: #cc0000;
+      color: white;
+      padding: 15px;
+    }
+
+    h2 {
+      margin-top: 30px;
+    }
+
+    table {
+      margin: auto;
+      width: 90%;
+      border-collapse: collapse;
+      background: white;
+      margin-bottom: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+
+    th {
+      background: #ff4d4d;
+      color: white;
+    }
+
+    input {
+      padding: 6px;
+      margin: 5px;
+    }
+
+    button {
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>🩸 Admin Dashboard</h1>
+
+<!-- ================= PATIENT ================= -->
+<h2>Patients</h2>
+
+<input id="searchBlood" placeholder="Enter Blood Group (A+, O-, etc)">
+<button onclick="searchPatients()">Search</button>
+<button onclick="loadPatients()">Show All</button>
+
+<table>
+<tr>
+  <th>Name</th>
+  <th>Age</th>
+  <th>Blood Group</th>
+</tr>
+<tbody id="patients"></tbody>
+</table>
+
+<!-- ================= DONOR ================= -->
+<h2>Donors</h2>
+
+<input id="searchDonorBlood" placeholder="Enter Blood Group (A+, O-, etc)">
+<button onclick="searchDonors()">Search</button>
+<button onclick="loadDonors()">Show All</button>
+
+<table>
+<tr>
+  <th>Name</th>
+  <th>Contact</th>
+  <th>Blood Group</th>
+</tr>
+<tbody id="donors"></tbody>
+</table>
+
+<!-- ================= EMPLOYEE ================= -->
+<h2>Employees</h2>
+
+<table>
+<tr>
+  <th>Name</th>
+  <th>Designation</th>
+  <th>Contact</th>
+</tr>
+<tbody id="employees"></tbody>
+</table>
+
+<!-- ================= BLOOD BANK ================= -->
+<h2>Blood Banks</h2>
+
+<table>
+<tr>
+  <th>Bank Name</th>
+  <th>Location</th>
+</tr>
+<tbody id="bloodbanks"></tbody>
+</table>
+
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+// ✅ CONNECT
+const supabase = createClient(
+  "https://lrckdxszwwwpulwekaed.supabase.co",
+  "sb_publishable_Rf-9M9rRHIcCpOxhF1TXQg_1CybT6hX"
+);
+
+// ================= PATIENT =================
+async function loadPatients() {
+  const { data } = await supabase.from("patient").select("*");
+
+  document.getElementById("patients").innerHTML = data.map(p => `
+    <tr>
+      <td>${p.name}</td>
+      <td>${p.age}</td>
+      <td>${p.blood_group}</td>
+    </tr>
+  `).join("");
+}
+
+window.searchPatients = async function() {
+  const blood = document.getElementById("searchBlood").value;
+
+  if (!blood) {
+    alert("⚠️ Enter blood group");
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from("patient")
+    .select("*")
+    .ilike("blood_group", blood);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  document.getElementById("patients").innerHTML = data.map(p => `
+    <tr>
+      <td>${p.name}</td>
+      <td>${p.age}</td>
+      <td>${p.blood_group}</td>
+    </tr>
+  `).join("");
+};
+
+// ================= DONOR =================
+async function loadDonors() {
+  const { data } = await supabase.from("donor").select("*");
+
+  document.getElementById("donors").innerHTML = data.map(d => `
+    <tr>
+      <td>${d.name}</td>
+      <td>${d.contact_no}</td>
+      <td>${d.blood_group}</td>
+    </tr>
+  `).join("");
+}
+
+window.searchDonors = async function() {
+  const blood = document.getElementById("searchDonorBlood").value;
+
+  if (!blood) {
+    alert("⚠️ Enter blood group");
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from("donor")
+    .select("*")
+    .ilike("blood_group", blood);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  document.getElementById("donors").innerHTML = data.map(d => `
+    <tr>
+      <td>${d.name}</td>
+      <td>${d.contact_no}</td>
+      <td>${d.blood_group}</td>
+    </tr>
+  `).join("");
+};
+
+// ================= EMPLOYEE =================
+async function loadEmployees() {
+  const { data } = await supabase.from("employee").select("*");
+
+  document.getElementById("employees").innerHTML = data.map(e => `
+    <tr>
+      <td>${e.name}</td>
+      <td>${e.designation}</td>
+      <td>${e.contact_no}</td>
+    </tr>
+  `).join("");
+}
+
+// ================= BLOOD BANK =================
+async function loadBanks() {
+  const { data } = await supabase.from("blood_bank").select("*");
+
+  document.getElementById("bloodbanks").innerHTML = data.map(b => `
+    <tr>
+      <td>${b.bank_name}</td>
+      <td>${b.location}</td>
+    </tr>
+  `).join("");
+}
+
+// ================= LOAD ALL =================
+window.onload = () => {
+  loadPatients();
+  loadDonors();
+  loadEmployees();
+  loadBanks();
+};
+</script>
+
+</body>
+</html>

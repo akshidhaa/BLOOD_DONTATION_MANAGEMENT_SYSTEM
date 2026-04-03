@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Donor Form</title>
+
+  <style>
+    body {
+      background: #ffe6f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: Arial;
+    }
+
+    .box {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+      width: 300px;
+    }
+
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 10px;
+    }
+
+    button {
+      padding: 10px;
+      margin: 8px;
+      background: pink;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2>Donor Form</h2>
+
+  <input type="text" id="name" placeholder="Name">
+  <input type="text" id="contact_no" placeholder="Contact Number">
+  <input type="text" id="blood_group" placeholder="Blood Group">
+
+  <button id="submitBtn">Submit</button>
+  <button onclick="location.href='view_donor.html'">View Donors</button>
+</div>
+
+<!-- 🎵 AUDIO -->
+<audio id="thankAudio">
+  <source src="public/message.mp3" type="audio/mpeg">
+</audio>
+
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+// ✅ SUPABASE CONNECTION
+const supabase = createClient(
+  "https://lrckdxszwwwpulwekaed.supabase.co",
+  "sb_publishable_Rf-9M9rRHIcCpOxhF1TXQg_1CybT6hX"
+);
+
+// ✅ FIX: RUN AFTER PAGE LOAD
+window.addEventListener("DOMContentLoaded", () => {
+
+  document.getElementById("submitBtn").addEventListener("click", async () => {
+
+    const name = document.getElementById("name").value;
+    const contact_no = document.getElementById("contact_no").value;
+    const blood_group = document.getElementById("blood_group").value;
+
+    if (!name || !contact_no || !blood_group) {
+      alert("⚠️ Please fill all fields");
+      return;
+    }
+
+    // ✅ INSERT INTO SUPABASE
+    const { error } = await supabase
+      .from("donor")
+      .insert([{ name, contact_no, blood_group }]);
+
+    if (error) {
+      alert("❌ " + error.message);
+      console.log(error);
+      return;
+    }
+
+    // ✅ SUCCESS MESSAGE
+    alert("❤️ Thank you for donating blood!");
+
+    // 🎵 PLAY AUDIO
+    const audio = document.getElementById("thankAudio");
+    audio.currentTime = 0;
+    audio.play().catch(err => console.log("Audio error:", err));
+
+    // ✅ CLEAR INPUTS
+    document.getElementById("name").value = "";
+    document.getElementById("contact_no").value = "";
+    document.getElementById("blood_group").value = "";
+  });
+
+});
+</script>
+
+</body>
+</html>
